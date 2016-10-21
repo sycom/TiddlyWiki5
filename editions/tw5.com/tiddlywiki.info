@@ -5,7 +5,7 @@
 		"tiddlywiki/nodewebkitsaver",
 		"tiddlywiki/browser-sniff",
 		"tiddlywiki/railroad",
-		"tiddlywiki/evernote"
+		"sycom/leaflet"
 	],
 	"themes": [
 		"tiddlywiki/vanilla",
