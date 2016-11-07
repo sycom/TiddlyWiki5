@@ -1,5 +1,0 @@
-title: $:/snippets/palettepreview
-
-<$set name="currentTiddler" value={{$:/palette}}>
-<$transclude tiddler="$:/snippets/currpalettepreview"/>
-</$set>
