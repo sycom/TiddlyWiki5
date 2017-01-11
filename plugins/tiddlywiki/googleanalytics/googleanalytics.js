@@ -34,17 +34,6 @@ exports.startup = function() {
 	if($tw.wiki.getTiddler("$:/GoogleAnalyticsTrackAll")) GA_TRACKALL = $tw.wiki.getTiddlerText("$:/GoogleAnalyticsTrackAll").replace(/\n/g,"");
 	else GA_TRACKALL = "no";
 	if (GA_TRACKALL == "yes") {
-		console.log("tracking-all");
-		/*
-		// enables "permalink" paradsdmeter on navigationadressbar
-		$tw.wiki.setText("$:/config/Navigation/UpdateAddressBar","text","permalink");
-		window.addEventListener("hashchange",function() {
-			var hash = $tw.utils.getLocationHash();
-			ga('set', 'page', '/#'+hash);
-			ga('set', 'title', hash);
-			console.log(hash);
-			ga('send', 'pageview');
-		})*/
 		// create a hook on navigation to send data via tracker
 		$tw.wiki.addEventListener("change",function(changes) {
 			// dealing with user settings !todo check if options is associated with wiki or $tw
@@ -57,23 +46,17 @@ exports.startup = function() {
 			var GA_CURRENT = historyList[historyList.length-1].title;
 			// if last item has not been closed, prepare data and send to tracker
 			if(storyList.includes(GA_CURRENT)) {
-				// !todo check if history was modified
-				console.log(changes.historyTitle.modified);
-				console.log('send');
+				// if history modified is true send tracker (else user may just closed another tiddler)
+				// note that clicking on a tiddlerlink from already opened tiddler will count
+				if(changes[historyTitle])  {
+					ga('set', 'page', window.location.pathname+'#'+GA_CURRENT);
+					ga('set', 'title', GA_CURRENT);
+					ga('send', 'pageview');
 				}
-			else console.log('don t send');
-			console.log(GA_CURRENT);
+			}
 		});
-		/*$tw.rootWidget.addEventListener("tm-navigate",function(event) {
-            console.log("track : "+event.actionTo);
-        });
-		$tw.hooks.addHook("th-track-internal-navigation",function(event) {
-			console.log("track : "+event.navigateTo);
-			return event;
-		});
-		$tw.hooks.invokeHook("th-track-internal-navigation",handleNavigateEvent());*/
+	// ?at first connection, should send all default pages to tracker?
 	}
-  // at first connection, should send all default pages to tracker?
   ga('create', GA_ACCOUNT, GA_DOMAIN);
   ga('send', 'pageview');
 };
