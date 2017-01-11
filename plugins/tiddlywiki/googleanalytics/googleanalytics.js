@@ -29,6 +29,34 @@ exports.startup = function() {
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
+	// adding (optional) tracking internal navigation
+	var GA_TRACKALL;
+	if($tw.wiki.getTiddler("$:/GoogleAnalyticsTrackAll")) GA_TRACKALL = $tw.wiki.getTiddlerText("$:/GoogleAnalyticsTrackAll").replace(/\n/g,"");
+	else GA_TRACKALL = "no";
+	if (GA_TRACKALL == "yes") {
+		// create a hook on navigation to send data via tracker
+		$tw.wiki.addEventListener("change",function(changes) {
+			// dealing with user settings !todo check if options is associated with wiki or $tw
+			var options = $tw.wiki.options || {},
+				storyTitle = options.storyTitle || "$:/StoryList",
+				historyTitle = options.historyTitle || "$:/HistoryList";
+			// getting storyList (displayed) historyList (last displayed) and last item
+			var storyList=$tw.wiki.getTiddler(storyTitle).fields.list;
+			var historyList = JSON.parse($tw.wiki.getTiddlerText(historyTitle));
+			var GA_CURRENT = historyList[historyList.length-1].title;
+			// if last item has not been closed, prepare data and send to tracker
+			if(storyList.includes(GA_CURRENT)) {
+				// if history modified is true send tracker (else user may just closed another tiddler)
+				// note that clicking on a tiddlerlink from already opened tiddler will count
+				if(changes[historyTitle])  {
+					ga('set', 'page', window.location.pathname+'#'+GA_CURRENT);
+					ga('set', 'title', GA_CURRENT);
+					ga('send', 'pageview');
+				}
+			}
+		});
+	// ?at first connection, should send all default pages to tracker?
+	}
   ga('create', GA_ACCOUNT, GA_DOMAIN);
   ga('send', 'pageview');
 };
