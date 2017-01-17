@@ -18,6 +18,11 @@ exports.platforms = ["browser"];
 exports.synchronous = true;
 
 exports.startup = function() {
+    // adding a hook to display informations
+    $tw.hooks.addHook("th-opening-default-tiddlers-list",function(list) {
+        list.unshift("this wiki uses Google analytics");
+        return list;
+        });
     // testing do not track
     if(navigator.doNotTrack != 1) {
     	// getting parameters
@@ -36,11 +41,13 @@ exports.startup = function() {
     	if($tw.wiki.getTiddler("$:/GoogleAnalyticsTrackAll")) GA_TRACKALL = $tw.wiki.getTiddlerText("$:/GoogleAnalyticsTrackAll").replace(/\n/g,"");
     	else GA_TRACKALL = "no";
     	if (GA_TRACKALL == "yes") {
-            // displays information about tracking
+            // change informations about tracking
+            $tw.wiki.setText("this wiki uses Google analytics",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_full"));
+            /*
             $tw.hooks.addHook("th-opening-default-tiddlers-list",function(list) {
                 list.unshift("this wiki uses Google analytics tracker - internal link mode");
                 return list;
-                });
+            });*/
     		// create a hook on navigation to send data via tracker
     		$tw.wiki.addEventListener("change",function(changes) {
     			// dealing with user settings !todo check if options is associated with wiki or $tw
@@ -65,15 +72,17 @@ exports.startup = function() {
     	// ?at first connection, should send all default pages to tracker?
     	}
         else {
-            // displays information about tracking
-            $tw.hooks.addHook("th-opening-default-tiddlers-list",function(list) {
-                list.unshift("this wiki uses Google analytics tracker");
-                return list;
-                });
+            // change informations about tracking
+            $tw.wiki.setText("this wiki uses Google analytics",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_base"));
             // send data for whole page once only
             ga('create', GA_ACCOUNT, GA_DOMAIN);
             ga('send', 'pageview');
         }
-    };
+    }
+    else {
+        // tells user tracker is installed but ineficient since DNT activated
+        // change informations about tracking
+        $tw.wiki.setText("this wiki uses Google analytics",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_dnt"));
+    }
 }
 })();
