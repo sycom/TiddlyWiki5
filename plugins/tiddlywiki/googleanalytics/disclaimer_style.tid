@@ -1,6 +1,0 @@
-title: $:/plugins/tiddlywiki/googleanalytics/alertStyle
-tags: $:/tags/Stylesheet
-
-.tc-tagged-alert {
-    background-color: <<colour alert-background>>
-}

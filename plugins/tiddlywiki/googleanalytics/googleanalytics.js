@@ -18,11 +18,6 @@ exports.platforms = ["browser"];
 exports.synchronous = true;
 
 exports.startup = function() {
-    // adding a hook to display informations
-    $tw.hooks.addHook("th-opening-default-tiddlers-list",function(list) {
-        list.unshift("this wiki uses Google analytics");
-        return list;
-        });
     // testing do not track
     if(navigator.doNotTrack != 1) {
     	// getting parameters
@@ -42,7 +37,7 @@ exports.startup = function() {
     	else GA_TRACKALL = "no";
     	if (GA_TRACKALL == "yes") {
             // change informations about tracking
-            $tw.wiki.setText("this wiki uses Google analytics",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_full"));
+            $tw.wiki.setText("this wiki uses Google analytics","text",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_full"));
             /*
             $tw.hooks.addHook("th-opening-default-tiddlers-list",function(list) {
                 list.unshift("this wiki uses Google analytics tracker - internal link mode");
@@ -73,7 +68,7 @@ exports.startup = function() {
     	}
         else {
             // change informations about tracking
-            $tw.wiki.setText("this wiki uses Google analytics",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_base"));
+            $tw.wiki.setText("this wiki uses Google analytics","text",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_base"));
             // send data for whole page once only
             ga('create', GA_ACCOUNT, GA_DOMAIN);
             ga('send', 'pageview');
@@ -82,7 +77,7 @@ exports.startup = function() {
     else {
         // tells user tracker is installed but ineficient since DNT activated
         // change informations about tracking
-        $tw.wiki.setText("this wiki uses Google analytics",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_dnt"));
+        $tw.wiki.setText("this wiki uses Google analytics","text",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_dnt"));
     }
 }
 })();
