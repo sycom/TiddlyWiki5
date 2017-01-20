@@ -18,10 +18,8 @@ exports.platforms = ["browser"];
 exports.synchronous = true;
 
 exports.startup = function() {
-    // testing do not track
-//console.log("TWGA > dnt : "+navigator.doNotTrack);
+    // testing do not track before launching
     if(navigator.doNotTrack != 1) {
-//console.log("TWGA > dnt inactive");
     	// getting parameters
     	var GA_ACCOUNT = $tw.wiki.getTiddlerText("$:/GoogleAnalyticsAccount").replace(/\n/g,""),
     		GA_DOMAIN = $tw.wiki.getTiddlerText("$:/GoogleAnalyticsDomain").replace(/\n/g,"");
@@ -34,19 +32,15 @@ exports.startup = function() {
           m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
           })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
     	// adding (optional) tracking internal navigation if activated
-//console.log("TWGA > loaded ga :");
-//console.log(ga);
     	var GA_TRACKALL;
     	if($tw.wiki.getTiddler("$:/GoogleAnalyticsTrackAll")) GA_TRACKALL = $tw.wiki.getTiddlerText("$:/GoogleAnalyticsTrackAll").replace(/\n/g,"");
     	else GA_TRACKALL = "nope";
     	if (GA_TRACKALL == "yes") {
-//console.log("TWGA > trackall active");
             ga('create', GA_ACCOUNT, GA_DOMAIN);
             // change informations about tracking - full tracking
             $tw.wiki.setText("this wiki uses Google analytics","text",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_full"));
     		// create a "hook" on navigation to send data via tracker
     		$tw.wiki.addEventListener("change",function(changes) {
-//console.log("TWGA > navigating");
     			// dealing with user settings !todo check if options is associated with wiki or $tw
     			var options = $tw.wiki.options || {},
     				storyTitle = options.storyTitle || "$:/StoryList",
@@ -60,33 +54,28 @@ exports.startup = function() {
     				// if history modified is true send tracker (else user may just closed another tiddler)
     				// note that clicking on a tiddlerlink from already opened tiddler will count
     				if(changes[historyTitle])  {
-//console.log("TWGA > sending : "+GA_DOMAIN+" / "+window.location.pathname+'#'+GA_CURRENT+" / "+GA_CURRENT);
     					ga('set', 'page', window.location.pathname+'#'+GA_CURRENT);
     					ga('set', 'title', GA_CURRENT);
     					ga('send', 'pageview');
     				}
     			}
     		});
-    	// ?at first connection, should send all default pages to tracker?
+    	// ?!todo? at first connection, should send all default pages to tracker?
     	}
         else {
-//console.log("TWGA > trackall inactive");
             // change informations about tracking - base mode
             $tw.wiki.setText("this wiki uses Google analytics","text",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_base"));
             // send data for whole page once only
-//console.log("TWGA > sending : "+GA_DOMAIN);
             ga('create', GA_ACCOUNT, GA_DOMAIN);
             ga('send', 'pageview');
         }
     }
     else {
-//console.log("TWGA > no tracking just changing disclaimer");
-        // tells user tracker is installed but ineffective since DNT is activated
+        // tells user plugin is installed but is not running since DNT is activated
         // change informations about tracking - dnt mode
         $tw.wiki.setText("this wiki uses Google analytics","text",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_dnt"));
     }
     // initializing notifications
-//console.log("TWGA > initializing notifications");
     $tw.wiki.setText("$:/temp/HideAnalyticsWarning","text",null,"nope");
 }
 })();
