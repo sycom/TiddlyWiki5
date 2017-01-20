@@ -6,4 +6,4 @@ You have only two value and one option to set, only first is mandatory. Save and
 
 ''[[Google Analytics Domain|$:/GoogleAnalyticsDomain]]''. Usually the website URL where your tiddlywiki is published. will fallback to `auto` if not set.<br/><$edit-text tiddler="$:/GoogleAnalyticsDomain" default="" tag="input"/>
 
-<$checkbox tiddler="$:/GoogleAnalyticsTrackAll" field="text" checked="yes" unchecked="" default=""></$checkbox> If you want the tracker to track also internal links, check this
+<$checkbox tiddler="$:/GoogleAnalyticsTrackAll" field="text" checked="yes" unchecked="" default=""></$checkbox> If you want the tracker to track also internal links, check this (will set [[Google Analytics Track All|$:/GoogleAnalyticsTrackAll]] to "yes")

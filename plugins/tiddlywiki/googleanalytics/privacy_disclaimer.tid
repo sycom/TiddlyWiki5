@@ -1,5 +1,5 @@
-title: this wiki uses Google analytics tracker
-tags: privacy analytics alert
+title: This wiki uses Google analytics
+tags: privacy analytics
 
 As many website do, this wiki uses [[Google Analytics|https://analytics.google.com]] (via the [[Google Analytics plugin|$:/plugins/tiddlywiki/googleanalytics]]) to help analyse how much visitors use this site and where they come from. Google uses “cookies”, which are small text files placed on your computer, to collect standard internet log information in an anonymous form.
 
