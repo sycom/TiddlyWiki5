@@ -5,7 +5,7 @@ tags: $:/tags/PageTemplate
     <div class="tc-plugin-reload-warning">
         <$set name="tv-config-toolbar-class" value="">
 
-This wiki uses Google analytics tracker (that means also //cookies//) via a [[plugin|$:/plugins/tiddlywiki/googleanalytics]] to get informations about your navigation. [[more informations|this wiki uses Google analytics]].&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<$button set="$:/temp/HideAnalyticsWarning" setTo="yes" class="tc-btn-invisible">{{$:/core/images/close-button}}</$button>
+{{$:/plugins/tiddlywiki/googleanalytics/disclaimer_notification}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<$button set="$:/temp/HideAnalyticsWarning" setTo="yes" class="tc-btn-invisible">{{$:/core/images/close-button}}</$button>
         </$set>
     </div>
 </$reveal>

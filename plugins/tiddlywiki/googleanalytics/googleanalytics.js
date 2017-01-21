@@ -18,14 +18,19 @@ exports.platforms = ["browser"];
 exports.synchronous = true;
 
 exports.startup = function() {
+    // initializing disclaimer
+    var GA_DISCLAIMER_TITLE = $tw.wiki.getTiddlerText("$:/GoogleAnalyticsDisclaimerTitle") || "this wiki uses Google analytics";
+    GA_DISCLAIMER_TITLE = GA_DISCLAIMER_TITLE.replace(/\n/g,"");
     // testing do not track before launching
     if(navigator.doNotTrack != 1) {
     	// getting parameters
-    	var GA_ACCOUNT = $tw.wiki.getTiddlerText("$:/GoogleAnalyticsAccount").replace(/\n/g,""),
-    		GA_DOMAIN = $tw.wiki.getTiddlerText("$:/GoogleAnalyticsDomain").replace(/\n/g,"");
+    	var GA_ACCOUNT = $tw.wiki.getTiddlerText("$:/GoogleAnalyticsAccount") || "",
+    		GA_DOMAIN = $tw.wiki.getTiddlerText("$:/GoogleAnalyticsDomain") || "";
+            GA_ACCOUNT = GA_ACCOUNT.replace(/\n/g,"");
+            GA_DOMAIN = GA_DOMAIN.replace(/\n/g,"");
       // handling domain parameter : user defined > from window location > "auto" fallback
-    	if (GA_DOMAIN == "" || GA_DOMAIN == undefined) GA_DOMAIN = window.location.hostname;
-      if (GA_DOMAIN == undefined) GA_DOMAIN = "auto";
+    	if (GA_DOMAIN == "") GA_DOMAIN = window.location.hostname;
+        if (GA_DOMAIN == undefined) GA_DOMAIN = "auto";
     	// using ga "isogram" function
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
           (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -38,7 +43,7 @@ exports.startup = function() {
     	if (GA_TRACKALL == "yes") {
             ga('create', GA_ACCOUNT, GA_DOMAIN);
             // change informations about tracking - full tracking
-            $tw.wiki.setText("this wiki uses Google analytics","text",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_full"));
+            $tw.wiki.setText(GA_DISCLAIMER_TITLE,"text",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_full"));
     		// create a "hook" on navigation to send data via tracker
     		$tw.wiki.addEventListener("change",function(changes) {
     			// dealing with user settings !todo check if options is associated with wiki or $tw
@@ -64,7 +69,7 @@ exports.startup = function() {
     	}
         else {
             // change informations about tracking - base mode
-            $tw.wiki.setText("this wiki uses Google analytics","text",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_base"));
+            $tw.wiki.setText(GA_DISCLAIMER_TITLE,"text",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_base"));
             // send data for whole page once only
             ga('create', GA_ACCOUNT, GA_DOMAIN);
             ga('send', 'pageview');
@@ -73,9 +78,18 @@ exports.startup = function() {
     else {
         // tells user plugin is installed but is not running since DNT is activated
         // change informations about tracking - dnt mode
-        $tw.wiki.setText("this wiki uses Google analytics","text",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_dnt"));
+        $tw.wiki.setText(GA_DISCLAIMER_TITLE,"text",null,$tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_dnt"));
     }
-    // initializing notifications
-    $tw.wiki.setText("$:/temp/HideAnalyticsWarning","text",null,"nope");
+    // killing notification (if asked by owner) or initializing it
+    var GA_NOTIFICATION = $tw.wiki.getTiddlerText("$:/GoogleAnalyticsNotification") || "yes";
+    if(GA_NOTIFICATION.replace(/\n/g,"") == "no") {
+        // kill notification and give a hint for hackers
+        $tw.wiki.setText("$:/plugins/tiddlywiki/googleanalytics/notification","text",null,"no notification for now. Uncheck hiding notification in [[Google Analytics Plugin|$:/plugins/tiddlywiki/googleanalytics]] settings");
+    }
+    else {
+        // reset notification to default and initialize
+        $tw.wiki.deleteTiddler("$:/plugins/tiddlywiki/googleanalytics/notification");
+        $tw.wiki.setText("$:/temp/HideAnalyticsWarning","text",null,"nope");
+    }
 }
 })();
