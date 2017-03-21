@@ -145,7 +145,7 @@ LinkWidget.prototype.handleClickEvent = function(event) {
 LinkWidget.prototype.handleDragStartEvent = function(event) {
 	if(event.target === this.domNodes[0]) {
 		if(this.to) {
-			$tw.dragInProgress = true;
+			$tw.dragInProgress = this.domNodes[0];
 			// Set the dragging class on the element being dragged
 			$tw.utils.addClass(event.target,"tc-tiddlylink-dragging");
 			// Create the drag image elements
@@ -156,14 +156,6 @@ LinkWidget.prototype.handleDragStartEvent = function(event) {
 			inner.appendChild(this.document.createTextNode(this.to));
 			this.dragImage.appendChild(inner);
 			this.document.body.appendChild(this.dragImage);
-			// Astoundingly, we need to cover the dragger up: http://www.kryogenix.org/code/browser/custom-drag-image.html
-			var cover = this.document.createElement("div");
-			cover.className = "tc-tiddler-dragger-cover";
-			cover.style.left = (inner.offsetLeft - 16) + "px";
-			cover.style.top = (inner.offsetTop - 16) + "px";
-			cover.style.width = (inner.offsetWidth + 32) + "px";
-			cover.style.height = (inner.offsetHeight + 32) + "px";
-			this.dragImage.appendChild(cover);
 			// Set the data transfer properties
 			var dataTransfer = event.dataTransfer;
 			// First the image
@@ -193,7 +185,7 @@ LinkWidget.prototype.handleDragStartEvent = function(event) {
 
 LinkWidget.prototype.handleDragEndEvent = function(event) {
 	if(event.target === this.domNodes[0]) {
-		$tw.dragInProgress = false;
+		$tw.dragInProgress = null;
 		// Remove the dragging class on the element being dragged
 		$tw.utils.removeClass(event.target,"tc-tiddlylink-dragging");
 		// Delete the drag image element
