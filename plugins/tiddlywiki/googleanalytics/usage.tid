@@ -14,7 +14,7 @@ If you already got one, go to next step, else
 # grab a copy of the plugin [[$:/plugins/tiddlywiki/googleanalytics]] from a wiki containing it like http://tiddlywiki.com to yours
 # save the tiddlywiki, refresh the page to load the plugin
 # in your tiddlywiki, go to [[$:/ControlPanel]] > Plugins tab. Unfold the Google Analytics box.
-# go to //settings// tabs and edit parameters : Google Analytics Account and Google Analytics Domain
+# go to //settings// tabs and edit parameters : Google Analytics Account, Google Analytics Domain and checkbox if you want to track internal navigation
 # save the tiddlywiki
 
 !! Upload the new version of your tiddlywiki
