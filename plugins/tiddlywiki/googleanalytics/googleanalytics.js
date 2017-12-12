@@ -1,4 +1,4 @@
-/*\
+﻿/*\
 title: $:/plugins/tiddlywiki/googleanalytics/googleanalytics.js
 type: application/javascript
 module-type: startup
@@ -20,12 +20,10 @@ exports.synchronous = true;
 
 exports.startup = function() {
     // initializing disclaimer
-    var GA_DISCLAIMER_TITLE = $tw.wiki.getTiddlerText("$:/plugins/tiddlywiki/googleanalytics/disclaimer_title") || "This wiki uses Google analytics";
+    var GA_DISCLAIMER_TITLE = $tw.wiki.getTiddlerText("$:/GoogleAnalyticsDisclaimerTitle") || "this wiki uses Google analytics";
     GA_DISCLAIMER_TITLE = GA_DISCLAIMER_TITLE.replace(/\n/g,"");
-console.log("test");
-console.log(GA_DISCLAIMER_TITLE);
     // testing do not track before launching
-    if(navigator.doNotTrack !== 1) {
+    if(navigator.doNotTrack != 1) {
     	// getting parameters
     	var GA_ACCOUNT = $tw.wiki.getTiddlerText("$:/GoogleAnalyticsAccount") || "",
     		GA_DOMAIN = $tw.wiki.getTiddlerText("$:/GoogleAnalyticsDomain") || "";
@@ -35,14 +33,14 @@ console.log(GA_DISCLAIMER_TITLE);
     	if (GA_DOMAIN == "") GA_DOMAIN = window.location.hostname;
         if (GA_DOMAIN == undefined) GA_DOMAIN = "auto";
     	// using ga "isogram" function
-		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-			})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
     	// adding (optional) tracking internal navigation if activated
     	var GA_TRACKALL;
     	if($tw.wiki.getTiddler("$:/GoogleAnalyticsTrackAll")) GA_TRACKALL = $tw.wiki.getTiddlerText("$:/GoogleAnalyticsTrackAll").replace(/\n/g,"");
-    	else GA_TRACKALL = "no";
+    	else GA_TRACKALL = "nope";
     	if (GA_TRACKALL == "yes") {
             ga('create', GA_ACCOUNT, GA_DOMAIN);
             // change informations about tracking - full tracking
@@ -61,7 +59,7 @@ console.log(GA_DISCLAIMER_TITLE);
     			if(storyList.includes(GA_CURRENT)) {
     				// if history modified is true send tracker (else user may just closed another tiddler)
     				// note that clicking on a tiddlerlink from already opened tiddler will count
-    				if(changes[historyTitle]) {
+    				if(changes[historyTitle])  {
     					ga('set', 'page', window.location.pathname+'#'+GA_CURRENT);
     					ga('set', 'title', GA_CURRENT);
     					ga('send', 'pageview');
@@ -86,12 +84,13 @@ console.log(GA_DISCLAIMER_TITLE);
     // killing notification (if asked by owner) or initializing it
     var GA_NOTIFICATION = $tw.wiki.getTiddlerText("$:/GoogleAnalyticsNotification") || "yes";
     if(GA_NOTIFICATION.replace(/\n/g,"") == "no") {
-        // hide notifications
-        $tw.wiki.setText("$:/temp/HideAnalyticsWarning","text",null,"yes");
+        // kill notification and give a hint for hackers
+        $tw.wiki.setText("$:/plugins/tiddlywiki/googleanalytics/notification","text",null,"no notification for now. Uncheck hiding notification in [[Google Analytics Plugin|$:/plugins/tiddlywiki/googleanalytics]] settings");
     }
     else {
         // reset notification to default and initialize
-        $tw.wiki.setText("$:/temp/HideAnalyticsWarning","text",null,"no");
+        $tw.wiki.deleteTiddler("$:/plugins/tiddlywiki/googleanalytics/notification");
+        $tw.wiki.setText("$:/temp/HideAnalyticsWarning","text",null,"nope");
     }
 }
 })();
