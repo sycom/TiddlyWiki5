@@ -13,7 +13,7 @@ If you don't already have an account:
 
 # ''Backup your TiddlyWiki''. Just in case
 # Install the plugin via the plugin manager in control panel
-# Save the TiddlyWiki andrefresh the page to load the plugin
+# Save the TiddlyWiki and refresh the page to load the plugin
 # Go to [[$:/ControlPanel]] > Plugins tab and unfold the Google Analytics Plugin
 # Go to the //settings// tab and edit the parameters
 # Save the TiddlyWiki
