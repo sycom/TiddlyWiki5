@@ -1,4 +1,4 @@
-TiddlyWiki5 Individual Contributor License Agreement
+﻿TiddlyWiki5 Individual Contributor License Agreement
 ====================================================
 
 Thank you for your interest in contributing to TiddlyWiki5. TiddlyWiki is owned by the UnaMesa Association ("We" or "Us").
