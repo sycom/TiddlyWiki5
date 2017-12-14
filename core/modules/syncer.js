@@ -33,6 +33,7 @@ function Syncer(options) {
 	var self = this;
 	this.wiki = options.wiki;
 	this.syncadaptor = options.syncadaptor;
+	this.disableUI = !!options.disableUI;
 	this.titleIsLoggedIn = options.titleIsLoggedIn || this.titleIsLoggedIn;
 	this.titleUserName = options.titleUserName || this.titleUserName;
 	this.titleSyncFilter = options.titleSyncFilter || this.titleSyncFilter;
@@ -41,8 +42,12 @@ function Syncer(options) {
 	this.throttleInterval = options.throttleInterval || this.throttleInterval;
 	this.fallbackInterval = options.fallbackInterval || this.fallbackInterval;
 	this.pollTimerInterval = options.pollTimerInterval || this.pollTimerInterval;
+	this.logging = "logging" in options ? options.logging : true;
 	// Make a logger
-	this.logger = new $tw.utils.Logger("syncer" + ($tw.browser ? "-browser" : "") + ($tw.node ? "-server" : "")  + (this.syncadaptor.name ? ("-" + this.syncadaptor.name) : ""));
+	this.logger = new $tw.utils.Logger("syncer" + ($tw.browser ? "-browser" : "") + ($tw.node ? "-server" : "")  + (this.syncadaptor.name ? ("-" + this.syncadaptor.name) : ""),{
+			colour: "cyan",
+			enable: this.logging
+		});
 	// Compile the dirty tiddler filter
 	this.filterFn = this.wiki.compileFilter(this.wiki.getTiddlerText(this.titleSyncFilter));
 	// Record information for known tiddlers
@@ -57,7 +62,7 @@ function Syncer(options) {
 		self.syncToServer(changes);
 	});
 	// Browser event handlers
-	if($tw.browser) {
+	if($tw.browser && !this.disableUI) {
 		// Set up our beforeunload handler
 		$tw.addUnloadTask(function(event) {
 			var confirmationMessage;
@@ -79,9 +84,11 @@ function Syncer(options) {
 		});
 	}
 	// Listen out for lazyLoad events
-	this.wiki.addEventListener("lazyLoad",function(title) {
-		self.handleLazyLoadEvent(title);
-	});
+	if(!this.disableUI) {
+		this.wiki.addEventListener("lazyLoad",function(title) {
+			self.handleLazyLoadEvent(title);
+		});		
+	}
 	// Get the login status
 	this.getStatus(function(err,isLoggedIn) {
 		// Do a sync from the server
@@ -134,7 +141,7 @@ Syncer.prototype.isDirty = function() {
 Update the document body with the class "tc-dirty" if the wiki has unsaved/unsynced changes
 */
 Syncer.prototype.updateDirtyStatus = function() {
-	if($tw.browser) {
+	if($tw.browser && !this.disableUI) {
 		$tw.utils.toggleClass(document.body,"tc-dirty",this.isDirty());
 	}
 };

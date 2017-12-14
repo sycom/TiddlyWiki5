@@ -1125,16 +1125,24 @@ exports.checkTiddlerText = function(title,targetText,options) {
 /*
 Read an array of browser File objects, invoking callback(tiddlerFieldsArray) once they're all read
 */
-exports.readFiles = function(files,callback) {
+exports.readFiles = function(files,options) {
+	var callback;
+	if(typeof options === "function") {
+		callback = options;
+		options = {};
+	} else {
+		callback = options.callback;
+	}
 	var result = [],
-		outstanding = files.length;
-	for(var f=0; f<files.length; f++) {
-		this.readFile(files[f],function(tiddlerFieldsArray) {
+		outstanding = files.length,
+		readFileCallback = function(tiddlerFieldsArray) {
 			result.push.apply(result,tiddlerFieldsArray);
 			if(--outstanding === 0) {
 				callback(result);
 			}
-		});
+		};
+	for(var f=0; f<files.length; f++) {
+		this.readFile(files[f],Object.assign({},options,{callback: readFileCallback}));
 	}
 	return files.length;
 };
@@ -1142,7 +1150,14 @@ exports.readFiles = function(files,callback) {
 /*
 Read a browser File object, invoking callback(tiddlerFieldsArray) with an array of tiddler fields objects
 */
-exports.readFile = function(file,callback) {
+exports.readFile = function(file,options) {
+	var callback;
+	if(typeof options === "function") {
+		callback = options;
+		options = {};
+	} else {
+		callback = options.callback;
+	}
 	// Get the type, falling back to the filename extension
 	var self = this,
 		type = file.type;
@@ -1162,6 +1177,22 @@ exports.readFile = function(file,callback) {
 	if($tw.log.IMPORT) {
 		console.log("Importing file '" + file.name + "', type: '" + type + "', isBinary: " + isBinary);
 	}
+	// Give the hook a chance to process the drag
+	if($tw.hooks.invokeHook("th-importing-file",{
+		file: file,
+		type: type,
+		isBinary: isBinary,
+		callback: callback
+	}) !== true) {
+		this.readFileContent(file,type,isBinary,options.deserializer,callback);
+	}
+};
+
+/*
+Lower level utility to read the content of a browser File object, invoking callback(tiddlerFieldsArray) with an array of tiddler fields objects
+*/
+exports.readFileContent = function(file,type,isBinary,deserializer,callback) {
+	var self = this;
 	// Create the FileReader
 	var reader = new FileReader();
 	// Onload
@@ -1183,7 +1214,7 @@ exports.readFile = function(file,callback) {
 			});
 		} else {
 			// Otherwise, just try to deserialise any tiddlers in the file
-			callback(self.deserializeTiddlers(type,text,tiddlerFields));
+			callback(self.deserializeTiddlers(type,text,tiddlerFields,{deserializer: deserializer}));
 		}
 	};
 	// Kick off the read

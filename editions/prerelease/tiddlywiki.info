@@ -15,7 +15,7 @@
 		"tiddlywiki/bibtex",
 		"tiddlywiki/savetrail",
 		"tiddlywiki/twitter",
-		"tiddlywiki/mobiledragdrop"
+		"tiddlywiki/external-attachments"
 	],
 	"themes": [
 		"tiddlywiki/vanilla",

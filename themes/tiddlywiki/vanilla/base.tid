@@ -6,10 +6,10 @@ tags: [[$:/tags/Stylesheet]]
 <$list filter="[<background>is[image]]">
 `background: url(`
 <$list filter="[<background>!has[_canonical_uri]]">
-<$macrocall $name="datauri" title={{$:/themes/tiddlywiki/vanilla/settings/backgroundimage}}/>
+`"`<$macrocall $name="datauri" title={{$:/themes/tiddlywiki/vanilla/settings/backgroundimage}}/>`"`
 </$list>
 <$list filter="[<background>has[_canonical_uri]]">
-<$view tiddler={{$:/themes/tiddlywiki/vanilla/settings/backgroundimage}} field="_canonical_uri"/>
+`"`<$view tiddler={{$:/themes/tiddlywiki/vanilla/settings/backgroundimage}} field="_canonical_uri"/>`"`
 </$list>
 `) center center;`
 `background-attachment: `{{$:/themes/tiddlywiki/vanilla/settings/backgroundimageattachment}}`;
@@ -935,7 +935,9 @@ button.tc-untagged-label {
 	font-size: 1em;
 }
 
-.tc-tiddler-controls > span > button {
+.tc-tiddler-controls > span > button,
+.tc-tiddler-controls > span > span > button,
+.tc-tiddler-controls > span > span > span > button {
 	vertical-align: baseline;
 	margin-left:5px;
 }
@@ -1706,6 +1708,8 @@ html body.tc-body.tc-single-tiddler-window {
 	border-right: 1px solid <<colour tab-border>>;
 	border-top-left-radius: 2px;
 	border-top-right-radius: 2px;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
 }
 
 .tc-tab-buttons.tc-vertical button {
@@ -1720,6 +1724,8 @@ html body.tc-body.tc-single-tiddler-window {
 	border-right: none;
 	border-top-left-radius: 2px;
 	border-bottom-left-radius: 2px;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
 }
 
 .tc-tab-buttons.tc-vertical button.tc-tab-selected {
@@ -2179,10 +2185,6 @@ a.tc-tiddlylink.tc-plugin-info:hover .tc-plugin-info > .tc-plugin-info-chunk > s
 	font-size: 0.95em;
 	font-weight: 200;
 	line-height: 1.5;
-}
-
-.tc-table-of-contents li li li a {
-	font-weight: bold;
 }
 
 .tc-table-of-contents li li li li {
