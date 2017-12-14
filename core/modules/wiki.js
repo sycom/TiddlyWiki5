@@ -329,7 +329,7 @@ Sort an array of tiddler titles by a specified field
 	isDescending: true if the sort should be descending
 	isCaseSensitive: true if the sort should consider upper and lower case letters to be different
 */
-exports.sortTiddlers = function(titles,sortField,isDescending,isCaseSensitive,isNumeric) {
+exports.sortTiddlers = function(titles,sortField,isDescending,isCaseSensitive,isNumeric,isAlphaNumeric) {
 	var self = this;
 	titles.sort(function(a,b) {
 		var x,y,
@@ -358,6 +358,8 @@ exports.sortTiddlers = function(titles,sortField,isDescending,isCaseSensitive,is
 		y = Number(b);
 		if(isNumeric && (!isNaN(x) || !isNaN(y))) {
 			return compareNumbers(x,y);
+		} else if(isAlphaNumeric) {
+			return isDescending ? b.localeCompare(a,undefined,{numeric: true,sensitivity: "base"}) : a.localeCompare(b,undefined,{numeric: true,sensitivity: "base"});
 		} else if($tw.utils.isDate(a) && $tw.utils.isDate(b)) {
 			return isDescending ? b - a : a - b;
 		} else {
@@ -567,6 +569,8 @@ exports.sortByList = function(array,listTitle) {
 					afterTitle = tiddler.fields["list-after"];
 				if(beforeTitle === "") {
 					newPos = 0;
+				} else if(afterTitle === "") {
+					newPos = titles.length;
 				} else if(beforeTitle) {
 					newPos = titles.indexOf(beforeTitle);
 				} else if(afterTitle) {
@@ -781,6 +785,14 @@ exports.initParsers = function(moduleType) {
 			}
 		}
 	});
+	// Use the generic binary parser for any binary types not registered so far
+	if($tw.Wiki.parsers["application/octet-stream"]) {
+		Object.keys($tw.config.contentTypeInfo).forEach(function(type) {
+			if(!$tw.utils.hop($tw.Wiki.parsers,type) && $tw.config.contentTypeInfo[type].encoding === "base64") {
+				$tw.Wiki.parsers[type] = $tw.Wiki.parsers["application/octet-stream"];
+			}
+		});		
+	}
 };
 
 /*
@@ -843,7 +855,7 @@ exports.parseTextReference = function(title,field,index,options) {
 	}
 	if(field === "text" || (!field && !index)) {
 		if(tiddler && tiddler.fields) {
-			return this.parseText(tiddler.fields.type || "text/vnd.tiddlywiki",tiddler.fields.text,options);			
+			return this.parseText(tiddler.fields.type,tiddler.fields.text,options);			
 		} else {
 			return null;
 		}
@@ -1125,16 +1137,24 @@ exports.checkTiddlerText = function(title,targetText,options) {
 /*
 Read an array of browser File objects, invoking callback(tiddlerFieldsArray) once they're all read
 */
-exports.readFiles = function(files,callback) {
+exports.readFiles = function(files,options) {
+	var callback;
+	if(typeof options === "function") {
+		callback = options;
+		options = {};
+	} else {
+		callback = options.callback;
+	}
 	var result = [],
-		outstanding = files.length;
-	for(var f=0; f<files.length; f++) {
-		this.readFile(files[f],function(tiddlerFieldsArray) {
+		outstanding = files.length,
+		readFileCallback = function(tiddlerFieldsArray) {
 			result.push.apply(result,tiddlerFieldsArray);
 			if(--outstanding === 0) {
 				callback(result);
 			}
-		});
+		};
+	for(var f=0; f<files.length; f++) {
+		this.readFile(files[f],Object.assign({},options,{callback: readFileCallback}));
 	}
 	return files.length;
 };
@@ -1142,7 +1162,14 @@ exports.readFiles = function(files,callback) {
 /*
 Read a browser File object, invoking callback(tiddlerFieldsArray) with an array of tiddler fields objects
 */
-exports.readFile = function(file,callback) {
+exports.readFile = function(file,options) {
+	var callback;
+	if(typeof options === "function") {
+		callback = options;
+		options = {};
+	} else {
+		callback = options.callback;
+	}
 	// Get the type, falling back to the filename extension
 	var self = this,
 		type = file.type;
@@ -1162,6 +1189,22 @@ exports.readFile = function(file,callback) {
 	if($tw.log.IMPORT) {
 		console.log("Importing file '" + file.name + "', type: '" + type + "', isBinary: " + isBinary);
 	}
+	// Give the hook a chance to process the drag
+	if($tw.hooks.invokeHook("th-importing-file",{
+		file: file,
+		type: type,
+		isBinary: isBinary,
+		callback: callback
+	}) !== true) {
+		this.readFileContent(file,type,isBinary,options.deserializer,callback);
+	}
+};
+
+/*
+Lower level utility to read the content of a browser File object, invoking callback(tiddlerFieldsArray) with an array of tiddler fields objects
+*/
+exports.readFileContent = function(file,type,isBinary,deserializer,callback) {
+	var self = this;
 	// Create the FileReader
 	var reader = new FileReader();
 	// Onload
@@ -1183,7 +1226,7 @@ exports.readFile = function(file,callback) {
 			});
 		} else {
 			// Otherwise, just try to deserialise any tiddlers in the file
-			callback(self.deserializeTiddlers(type,text,tiddlerFields));
+			callback(self.deserializeTiddlers(type,text,tiddlerFields,{deserializer: deserializer}));
 		}
 	};
 	// Kick off the read

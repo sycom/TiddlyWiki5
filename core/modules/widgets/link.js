@@ -64,30 +64,48 @@ LinkWidget.prototype.renderLink = function(parent,nextSibling) {
 	var domNode = this.document.createElement(tag);
 	// Assign classes
 	var classes = [];
-	if(this.linkClasses) {
-		classes.push(this.linkClasses);
-	}
-	classes.push("tc-tiddlylink");
-	if(this.isShadow) {
-		classes.push("tc-tiddlylink-shadow");
-	}
-	if(this.isMissing && !this.isShadow) {
-		classes.push("tc-tiddlylink-missing");
-	} else {
-		if(!this.isMissing) {
-			classes.push("tc-tiddlylink-resolves");
+	if(this.overrideClasses === undefined) {
+		classes.push("tc-tiddlylink");
+		if(this.isShadow) {
+			classes.push("tc-tiddlylink-shadow");
 		}
+		if(this.isMissing && !this.isShadow) {
+			classes.push("tc-tiddlylink-missing");
+		} else {
+			if(!this.isMissing) {
+				classes.push("tc-tiddlylink-resolves");
+			}
+		}
+		if(this.linkClasses) {
+			classes.push(this.linkClasses);			
+		}
+	} else if(this.overrideClasses !== "") {
+		classes.push(this.overrideClasses)
 	}
-	domNode.setAttribute("class",classes.join(" "));
+	if(classes.length > 0) {
+		domNode.setAttribute("class",classes.join(" "));
+	}
 	// Set an href
-	var wikiLinkTemplateMacro = this.getVariable("tv-wikilink-template"),
-		wikiLinkTemplate = wikiLinkTemplateMacro ? wikiLinkTemplateMacro.trim() : "#$uri_encoded$",
+	var wikilinkTransformFilter = this.getVariable("tv-filter-export-link"),
+		wikiLinkText;
+	if(wikilinkTransformFilter) {
+		// Use the filter to construct the href
+		wikiLinkText = this.wiki.filterTiddlers(wikilinkTransformFilter,this,function(iterator) {
+			iterator(self.wiki.getTiddler(self.to),self.to)
+		})[0];
+	} else {
+		// Expand the tv-wikilink-template variable to construct the href
+		var wikiLinkTemplateMacro = this.getVariable("tv-wikilink-template"),
+			wikiLinkTemplate = wikiLinkTemplateMacro ? wikiLinkTemplateMacro.trim() : "#$uri_encoded$";
 		wikiLinkText = $tw.utils.replaceString(wikiLinkTemplate,"$uri_encoded$",encodeURIComponent(this.to));
-	wikiLinkText = $tw.utils.replaceString(wikiLinkText,"$uri_doubleencoded$",encodeURIComponent(encodeURIComponent(this.to)));
+		wikiLinkText = $tw.utils.replaceString(wikiLinkText,"$uri_doubleencoded$",encodeURIComponent(encodeURIComponent(this.to)));
+	}
+	// Override with the value of tv-get-export-link if defined
 	wikiLinkText = this.getVariable("tv-get-export-link",{params: [{name: "to",value: this.to}],defaultValue: wikiLinkText});
 	if(tag === "a") {
 		domNode.setAttribute("href",wikiLinkText);
 	}
+	// Set the tabindex
 	if(this.tabIndex) {
 		domNode.setAttribute("tabindex",this.tabIndex);
 	}
@@ -157,6 +175,7 @@ LinkWidget.prototype.execute = function() {
 	this.tooltip = this.getAttribute("tooltip");
 	this["aria-label"] = this.getAttribute("aria-label");
 	this.linkClasses = this.getAttribute("class");
+	this.overrideClasses = this.getAttribute("overrideClass");
 	this.tabIndex = this.getAttribute("tabindex");
 	this.draggable = this.getAttribute("draggable","yes");
 	this.linkTag = this.getAttribute("tag","a");

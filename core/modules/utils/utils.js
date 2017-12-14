@@ -13,11 +13,52 @@ Various static utility functions.
 "use strict";
 
 /*
+Display a message, in colour if we're on a terminal
+*/
+exports.log = function(text,colour) {
+	console.log($tw.node ? exports.terminalColour(colour) + text + exports.terminalColour() : text);
+};
+
+exports.terminalColour = function(colour) {
+	if(!$tw.browser && $tw.node && process.stdout.isTTY) {
+		if(colour) {
+			var code = exports.terminalColourLookup[colour];
+			if(code) {
+				return "\x1b[" + code + "m";
+			}
+		} else {
+			return "\x1b[0m"; // Cancel colour
+		}
+	}
+	return "";
+};
+
+exports.terminalColourLookup = {
+	"black": "0;30",
+	"red": "0;31",
+	"green": "0;32",
+	"brown/orange": "0;33",
+	"blue": "0;34",
+	"purple": "0;35",
+	"cyan": "0;36",
+	"light gray": "0;37"
+};
+
+/*
 Display a warning, in colour if we're on a terminal
 */
 exports.warning = function(text) {
-	console.log($tw.node ? "\x1b[1;33m" + text + "\x1b[0m" : text);
+	exports.log(text,"brown/orange");
 };
+
+/*
+Return the integer represented by the str (string).
+Return the dflt (default) parameter if str is not a base-10 number.
+*/
+exports.getInt = function(str,deflt) {
+	var i = parseInt(str,10);
+	return isNaN(i) ? deflt : i;
+}
 
 /*
 Repeatedly replaces a substring within a string. Like String.prototype.replace, but without any of the default special handling of $ sequences in the replace string
@@ -331,15 +372,15 @@ exports.formatDateString = function(date,template) {
 			}]
 		];
 	// If the user wants everything in UTC, shift the datestamp
-	// Optimize for format string that essentially means 
+	// Optimize for format string that essentially means
 	// 'return raw UTC (tiddlywiki style) date string.'
 	if(t.indexOf("[UTC]") == 0 ) {
-		if(t == "[UTC]YYYY0MM0DD0hh0mm0ssXXX") 
+		if(t == "[UTC]YYYY0MM0DD0hh0mm0ssXXX")
 			return $tw.utils.stringifyDate(new Date());
 		var offset = date.getTimezoneOffset() ; // in minutes
 		date = new Date(date.getTime()+offset*60*1000) ;
 		t = t.substr(5) ;
-	} 
+	}
 	while(t.length){
 		var matchString = "";
 		$tw.utils.each(matches, function(m) {
@@ -459,7 +500,7 @@ exports.entityDecode = function(s) {
 		e = s.substr(1,s.length-2); // Strip the & and the ;
 	if(e.charAt(0) === "#") {
 		if(e.charAt(1) === "x" || e.charAt(1) === "X") {
-			return converter(parseInt(e.substr(2),16));	
+			return converter(parseInt(e.substr(2),16));
 		} else {
 			return converter(parseInt(e.substr(1),10));
 		}
@@ -511,7 +552,24 @@ exports.stringify = function(s) {
 		.replace(/'/g, "\\'")              // single quote character
 		.replace(/\r/g, '\\r')             // carriage return
 		.replace(/\n/g, '\\n')             // line feed
-		.replace(/[\x80-\uFFFF]/g, exports.escape); // non-ASCII characters
+		.replace(/[\x00-\x1f\x80-\uFFFF]/g, exports.escape); // non-ASCII characters
+};
+
+// Turns a string into a legal JSON string
+// Derived from peg.js, thanks to David Majda
+exports.jsonStringify = function(s) {
+	// See http://www.json.org/
+	return (s || "")
+		.replace(/\\/g, '\\\\')            // backslash
+		.replace(/"/g, '\\"')              // double quote character
+		.replace(/\r/g, '\\r')             // carriage return
+		.replace(/\n/g, '\\n')             // line feed
+		.replace(/\x08/g, '\\b')           // backspace
+		.replace(/\x0c/g, '\\f')           // formfeed
+		.replace(/\t/g, '\\t')             // tab
+		.replace(/[\x00-\x1f\x80-\uFFFF]/g,function(s) {
+			return '\\u' + $tw.utils.pad(s.charCodeAt(0).toString(16).toUpperCase(),4);
+		}); // non-ASCII characters
 };
 
 /*
@@ -675,7 +733,7 @@ High resolution microsecond timer for profiling
 exports.timer = function(base) {
 	var m;
 	if($tw.node) {
-		var r = process.hrtime();		
+		var r = process.hrtime();
 		m =  r[0] * 1e3 + (r[1] / 1e6);
 	} else if(window.performance) {
 		m = performance.now();
@@ -740,84 +798,6 @@ exports.strEndsWith = function(str,ending,position) {
 		var lastIndex = str.indexOf(ending, position);
 		return lastIndex !== -1 && lastIndex === position;
 	}
-};
-
-/*
-Transliterate string from eg. Cyrillic Russian to Latin
-*/
-var transliterationPairs = {
-	"Ё":"YO",
-	"Й":"I",
-	"Ц":"TS",
-	"У":"U",
-	"К":"K",
-	"Е":"E",
-	"Н":"N",
-	"Г":"G",
-	"Ш":"SH",
-	"Щ":"SCH",
-	"З":"Z",
-	"Х":"H",
-	"Ъ":"'",
-	"ё":"yo",
-	"й":"i",
-	"ц":"ts",
-	"у":"u",
-	"к":"k",
-	"е":"e",
-	"н":"n",
-	"г":"g",
-	"ш":"sh",
-	"щ":"sch",
-	"з":"z",
-	"х":"h",
-	"ъ":"'",
-	"Ф":"F",
-	"Ы":"I",
-	"В":"V",
-	"А":"a",
-	"П":"P",
-	"Р":"R",
-	"О":"O",
-	"Л":"L",
-	"Д":"D",
-	"Ж":"ZH",
-	"Э":"E",
-	"ф":"f",
-	"ы":"i",
-	"в":"v",
-	"а":"a",
-	"п":"p",
-	"р":"r",
-	"о":"o",
-	"л":"l",
-	"д":"d",
-	"ж":"zh",
-	"э":"e",
-	"Я":"Ya",
-	"Ч":"CH",
-	"С":"S",
-	"М":"M",
-	"И":"I",
-	"Т":"T",
-	"Ь":"'",
-	"Б":"B",
-	"Ю":"YU",
-	"я":"ya",
-	"ч":"ch",
-	"с":"s",
-	"м":"m",
-	"и":"i",
-	"т":"t",
-	"ь":"'",
-	"б":"b",
-	"ю":"yu"
-};
-
-exports.transliterate = function(str) {
-	return str.split("").map(function(char) {
-		return transliterationPairs[char] || char;
-	}).join("");
 };
 
 })();
