@@ -4,11 +4,11 @@ You have two value and one option parameters to set, ''only first is mandatory''
 
 !!Parameters
 
-''[[Google Analytics Account|$:/GoogleAnalyticsAccount]]'' (mandatory) : a code of the form `UA-XXXXXX-XX` where X are digits<br/><$edit-text tiddler="$:/GoogleAnalyticsAccount" default="" tag="input"/>
+''[[Google Analytics Account|$:/GoogleAnalyticsAccount]]'' (mandatory) : your^^1^^ code of the form `UA-XXXXXX-XX` where X are digits<br/><$edit-text tiddler="$:/GoogleAnalyticsAccount" default="" tag="input"/>
 
 ''[[Google Analytics Domain|$:/GoogleAnalyticsDomain]]'' (optional) : the website URL where the TiddlyWiki file is published. Defaults to `auto` if not set.<br/><$edit-text tiddler="$:/GoogleAnalyticsDomain" default="" tag="input"/>
 
-<$checkbox tiddler="$:/GoogleAnalyticsTrackAll" field="text" checked="yes" unchecked="" default=""></$checkbox> If you want the tracker to track also internal links, check this (will set [[Google Analytics Track All|$:/GoogleAnalyticsTrackAll]] to "yes")
+<$checkbox tiddler="$:/GoogleAnalyticsTrackAll" field="text" checked="yes" unchecked="no" default="no"></$checkbox> If you want the tracker to track also internal links, check this (will set [[Google Analytics Track All|$:/GoogleAnalyticsTrackAll]] to "yes")
 
 ^^1^^ //if not, you may send data to other Google Analytics user.//
 
@@ -18,9 +18,9 @@ You may personalize or translate messages displayed by the plugin by editing tho
 * [[Notification message|$:/plugins/tiddlywiki/googleanalytics/disclaimer_notification]]
 
 * ''Privacy disclaimer''
-*# [[Title|$:/GoogleAnalyticsDisclaimerTitle]] : <$edit-text tiddler="$:/GoogleAnalyticsDisclaimerTitle" default="this wiki uses Google analytics" tag="input"/><br/>If changing this, don't forget to update [[Notification message|$:/plugins/tiddlywiki/googleanalytics/disclaimer_notification]] (the more informations link which should link to this). And delete former version of the tiddler.
+*# [[Title|$:/plugins/tiddlywiki/googleanalytics/disclaimer_title]] : <$edit-text tiddler="$:/plugins/tiddlywiki/googleanalytics/disclaimer_title" tag="input"/>
 *# [[Default message|$:/plugins/tiddlywiki/googleanalytics/disclaimer_base]]
 *# [[internal tracking activated|$:/plugins/tiddlywiki/googleanalytics/disclaimer_full]]
 *# [[Visitor in private mode or using Do Not Track|$:/plugins/tiddlywiki/googleanalytics/disclaimer_dnt]]
 
-* ''Disable Notification''<br/>Although you ''should not'' do this, you may disable initial notification. Keep in mind that it is ''a bit unfair for your visitors'' and ''may constitute a violation of law'' [[in many countries|https://www.dlapiperdataprotection.com/index.html#handbook/world-map-section]]. Also, please aknowledge that the plugin will still create the [[this wiki uses Google analytics]] tiddler.<br/><$checkbox tiddler="$:/GoogleAnalyticsNotification" field="text" checked="no" unchecked="" default=""></$checkbox> If you want to disable initial notification (will set [[Google Analytics Notification|$:/GoogleAnalyticsNotification]] to "no").
+* ''Disable Notification''<br/>Although you ''should not'' do this, you may disable initial notification. Keep in mind that it is ''a bit unfair for your visitors'' and ''may constitute a violation of law'' [[in many countries|https://www.dlapiperdataprotection.com/index.html#handbook/world-map-section]]. Also, please aknowledge that the plugin will still create the <$link to={{$:/plugins/tiddlywiki/googleanalytics/disclaimer_title!!text}}>{{$:/plugins/tiddlywiki/googleanalytics/disclaimer_title!!text}}</$link> tiddler.<br/><$checkbox tiddler="$:/GoogleAnalyticsNotification" field="text" checked="no" unchecked="yes" default="yes"></$checkbox> If you want to disable initial notification (will set [[Google Analytics Notification|$:/GoogleAnalyticsNotification]] to "no").
