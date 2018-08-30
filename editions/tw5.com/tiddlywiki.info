@@ -5,7 +5,7 @@
 		"tiddlywiki/browser-sniff",
 		"tiddlywiki/railroad",
 		"tiddlywiki/evernote",
-		"sycom/leaflet"
+		"../../TW5dev/plugins/sycom/leaflet"
 	],
 	"themes": [
 		"tiddlywiki/vanilla",
