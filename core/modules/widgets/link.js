@@ -13,6 +13,7 @@ Link widget
 "use strict";
 
 var Widget = require("$:/core/modules/widgets/widget.js").widget;
+var MISSING_LINK_CONFIG_TITLE = "$:/config/MissingLinks";
 
 var LinkWidget = function(parseTreeNode,options) {
 	this.initialise(parseTreeNode,options);
@@ -181,7 +182,7 @@ LinkWidget.prototype.execute = function() {
 	// Determine the link characteristics
 	this.isMissing = !this.wiki.tiddlerExists(this.to);
 	this.isShadow = this.wiki.isShadowTiddler(this.to);
-	this.hideMissingLinks = (this.getVariable("tv-show-missing-links") || "yes") === "no";
+	this.hideMissingLinks = ($tw.wiki.getTiddlerText(MISSING_LINK_CONFIG_TITLE,"yes") === "no");
 	// Make the child widgets
 	this.makeChildWidgets();
 };
@@ -191,7 +192,7 @@ Selectively refreshes the widget if needed. Returns true if the widget or any of
 */
 LinkWidget.prototype.refresh = function(changedTiddlers) {
 	var changedAttributes = this.computeAttributes();
-	if(changedAttributes.to || changedTiddlers[this.to] || changedAttributes["aria-label"] || changedAttributes.tooltip) {
+	if(changedAttributes.to || changedTiddlers[this.to] || changedAttributes["aria-label"] || changedAttributes.tooltip || changedTiddlers[MISSING_LINK_CONFIG_TITLE]) {
 		this.refreshSelf();
 		return true;
 	}

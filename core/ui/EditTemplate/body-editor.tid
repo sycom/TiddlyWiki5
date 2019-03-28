@@ -5,7 +5,6 @@ title: $:/core/ui/EditTemplate/body/editor
   field="text"
   class="tc-edit-texteditor"
   placeholder={{$:/language/EditTemplate/Body/Placeholder}}
-  tabindex={{$:/config/EditTabIndex}}
 
 ><$set
 

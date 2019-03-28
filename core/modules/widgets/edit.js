@@ -46,7 +46,6 @@ EditWidget.prototype.execute = function() {
 	this.editIndex = this.getAttribute("index");
 	this.editClass = this.getAttribute("class");
 	this.editPlaceholder = this.getAttribute("placeholder");
-	this.editTabIndex = this.getAttribute("tabindex");
 	// Choose the appropriate edit widget
 	this.editorType = this.getEditorType();
 	// Make the child widgets
@@ -57,8 +56,7 @@ EditWidget.prototype.execute = function() {
 			field: {type: "string", value: this.editField},
 			index: {type: "string", value: this.editIndex},
 			"class": {type: "string", value: this.editClass},
-			"placeholder": {type: "string", value: this.editPlaceholder},
-			"tabindex": {type: "string", value: this.editTabIndex}
+			"placeholder": {type: "string", value: this.editPlaceholder}
 		},
 		children: this.parseTreeNode.children
 	}]);
@@ -92,11 +90,11 @@ Selectively refreshes the widget if needed. Returns true if the widget or any of
 EditWidget.prototype.refresh = function(changedTiddlers) {
 	var changedAttributes = this.computeAttributes();
 	// Refresh if an attribute has changed, or the type associated with the target tiddler has changed
-	if(changedAttributes.tiddler || changedAttributes.field || changedAttributes.index || changedAttributes.tabindex || (changedTiddlers[this.editTitle] && this.getEditorType() !== this.editorType)) {
+	if(changedAttributes.tiddler || changedAttributes.field || changedAttributes.index || (changedTiddlers[this.editTitle] && this.getEditorType() !== this.editorType)) {
 		this.refreshSelf();
 		return true;
 	} else {
-		return this.refreshChildren(changedTiddlers);
+		return this.refreshChildren(changedTiddlers);		
 	}
 };
 

@@ -468,9 +468,6 @@ NavigatorWidget.prototype.handleNewTiddlerEvent = function(event) {
 	// Update the story to insert the new draft at the top and remove any existing tiddler
 	if(storyList.indexOf(draftTitle) === -1) {
 		var slot = storyList.indexOf(event.navigateFromTitle);
-		if(slot === -1) {
-			slot = this.getAttribute("openLinkFromOutsideRiver","top") === "bottom" ? storyList.length - 1 : slot;
-		}
 		storyList.splice(slot + 1,0,draftTitle);
 	}
 	if(storyList.indexOf(title) !== -1) {
@@ -590,7 +587,7 @@ NavigatorWidget.prototype.handleFoldOtherTiddlersEvent = function(event) {
 NavigatorWidget.prototype.handleFoldAllTiddlersEvent = function(event) {
 	var self = this,
 		paramObject = event.paramObject || {},
-		prefix = paramObject.foldedStatePrefix || "$:/state/folded/";
+		prefix = paramObject.foldedStatePrefix;
 	$tw.utils.each(this.getStoryList(),function(title) {
 		self.wiki.setText(prefix + title,"text",null,"hide");
 	});
