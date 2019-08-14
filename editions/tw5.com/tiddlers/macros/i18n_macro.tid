@@ -1,0 +1,8 @@
+caption: i18n
+created: 20190814170000000
+modified: 20190814170000000
+tags: Macros [[Core Macros]]
+title: i18n macro
+type: text/vnd.tiddlywiki
+
+<<i18n 'i18n macro' '$:/ext/modules/macros/i18n' 'fr-FR'>>
