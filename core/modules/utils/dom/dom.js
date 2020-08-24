@@ -29,23 +29,23 @@ exports.removeChildren = function(node) {
 };
 
 exports.hasClass = function(el,className) {
-	return el && el.className && el.className.toString().split(" ").indexOf(className) !== -1;
+	return el && el.hasAttribute && el.hasAttribute("class") && el.getAttribute("class").split(" ").indexOf(className) !== -1;
 };
 
 exports.addClass = function(el,className) {
-	var c = el.className.split(" ");
+	var c = (el.getAttribute("class") || "").split(" ");
 	if(c.indexOf(className) === -1) {
 		c.push(className);
+		el.setAttribute("class",c.join(" "));
 	}
-	el.className = c.join(" ");
 };
 
 exports.removeClass = function(el,className) {
-	var c = el.className.split(" "),
+	var c = (el.getAttribute("class") || "").split(" "),
 		p = c.indexOf(className);
 	if(p !== -1) {
 		c.splice(p,1);
-		el.className = c.join(" ");
+		el.setAttribute("class",c.join(" "));
 	}
 };
 
@@ -136,11 +136,15 @@ exports.getBoundingPageRect = function(element) {
 Saves a named password in the browser
 */
 exports.savePassword = function(name,password) {
+	var done = false;
 	try {
-		if(window.localStorage) {
-			localStorage.setItem("tw5-password-" + name,password);
-		}
+		window.localStorage.setItem("tw5-password-" + name,password);
+		done = true;
 	} catch(e) {
+	}
+	if(!done) {
+		$tw.savedPasswords = $tw.savedPasswords || Object.create(null);
+		$tw.savedPasswords[name] = password;
 	}
 };
 
@@ -148,10 +152,15 @@ exports.savePassword = function(name,password) {
 Retrieve a named password from the browser
 */
 exports.getPassword = function(name) {
+	var value;
 	try {
-		return window.localStorage ? localStorage.getItem("tw5-password-" + name) : "";
+		value = window.localStorage.getItem("tw5-password-" + name);
 	} catch(e) {
-		return "";
+	}
+	if(value !== undefined) {
+		return value;
+	} else {
+		return ($tw.savedPasswords || Object.create(null))[name] || "";
 	}
 };
 

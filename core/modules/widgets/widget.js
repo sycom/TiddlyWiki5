@@ -385,9 +385,10 @@ Widget.prototype.previousSibling = function() {
 Render the children of this widget into the DOM
 */
 Widget.prototype.renderChildren = function(parent,nextSibling) {
-	$tw.utils.each(this.children,function(childWidget) {
-		childWidget.render(parent,nextSibling);
-	});
+	var children = this.children;
+	for(var i = 0; i < children.length; i++) {
+		children[i].render(parent,nextSibling);
+	};
 };
 
 /*
@@ -420,6 +421,7 @@ Widget.prototype.addEventListener = function(type,handler) {
 Dispatch an event to a widget. If the widget doesn't handle the event then it is also dispatched to the parent widget
 */
 Widget.prototype.dispatchEvent = function(event) {
+	event.widget = event.widget || this;
 	// Dispatch the event if this widget handles it
 	var listener = this.eventListeners[event.type];
 	if(listener) {
@@ -455,11 +457,11 @@ Widget.prototype.refreshSelf = function() {
 Refresh all the children of a widget
 */
 Widget.prototype.refreshChildren = function(changedTiddlers) {
-	var self = this,
+	var children = this.children,
 		refreshed = false;
-	$tw.utils.each(this.children,function(childWidget) {
-		refreshed = childWidget.refresh(changedTiddlers) || refreshed;
-	});
+	for (var i = 0; i < children.length; i++) {
+		refreshed = children[i].refresh(changedTiddlers) || refreshed;
+	}
 	return refreshed;
 };
 

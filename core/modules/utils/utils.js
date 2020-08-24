@@ -12,6 +12,8 @@ Various static utility functions.
 /*global $tw: false */
 "use strict";
 
+var base64utf8 = require("$:/core/modules/utils/base64-utf8/base64-utf8.module.js");
+
 /*
 Display a message, in colour if we're on a terminal
 */
@@ -92,6 +94,20 @@ exports.trim = function(str) {
 	}
 };
 
+/*
+Convert a string to sentence case (ie capitalise first letter)
+*/
+exports.toSentenceCase = function(str) {
+	return (str || "").replace(/^\S/, function(c) {return c.toUpperCase();});
+}
+
+/*
+Convert a string to title case (ie capitalise each initial letter)
+*/
+exports.toTitleCase = function(str) {
+	return (str || "").replace(/(^|\s)\S/g, function(c) {return c.toUpperCase();});
+}
+	
 /*
 Find the line break preceding a given position in a string
 Returns position immediately after that line break, or the start of the string
@@ -264,7 +280,7 @@ exports.formatDateString = function(date,template) {
 				return $tw.utils.pad(date.getSeconds());
 			}],
 			[/^0XXX/, function() {
-				return $tw.utils.pad(date.getMilliseconds());
+				return $tw.utils.pad(date.getMilliseconds(),3);
 			}],
 			[/^0DD/, function() {
 				return $tw.utils.pad(date.getDate());
@@ -669,12 +685,14 @@ exports.hashString = function(str) {
 Decode a base64 string
 */
 exports.base64Decode = function(string64) {
-	if($tw.browser) {
-		// TODO
-		throw "$tw.utils.base64Decode() doesn't work in the browser";
-	} else {
-		return Buffer.from(string64,"base64").toString();
-	}
+	return base64utf8.base64.decode.call(base64utf8,string64);
+};
+
+/*
+Encode a string to base64
+*/
+exports.base64Encode = function(string64) {
+	return base64utf8.base64.encode.call(base64utf8,string64);
 };
 
 /*
@@ -710,16 +728,20 @@ exports.timer = function(base) {
 /*
 Convert text and content type to a data URI
 */
-exports.makeDataUri = function(text,type) {
+exports.makeDataUri = function(text,type,_canonical_uri) {
 	type = type || "text/vnd.tiddlywiki";
 	var typeInfo = $tw.config.contentTypeInfo[type] || $tw.config.contentTypeInfo["text/plain"],
 		isBase64 = typeInfo.encoding === "base64",
 		parts = [];
-	parts.push("data:");
-	parts.push(type);
-	parts.push(isBase64 ? ";base64" : "");
-	parts.push(",");
-	parts.push(isBase64 ? text : encodeURIComponent(text));
+	if(_canonical_uri) {
+		parts.push(_canonical_uri);
+	} else {
+		parts.push("data:");
+		parts.push(type);
+		parts.push(isBase64 ? ";base64" : "");
+		parts.push(",");
+		parts.push(isBase64 ? text : encodeURIComponent(text));		
+	}
 	return parts.join("");
 };
 
@@ -759,6 +781,77 @@ exports.strEndsWith = function(str,ending,position) {
 		var lastIndex = str.indexOf(ending, position);
 		return lastIndex !== -1 && lastIndex === position;
 	}
+};
+
+/*
+Return system information useful for debugging
+*/
+exports.getSystemInfo = function(str,ending,position) {
+	var results = [],
+		save = function(desc,value) {
+			results.push(desc + ": " + value);
+		};
+	if($tw.browser) {
+		save("User Agent",navigator.userAgent);
+		save("Online Status",window.navigator.onLine);
+	}
+	if($tw.node) {
+		save("Node Version",process.version);
+	}
+	return results.join("\n");
+};
+
+exports.parseNumber = function(str) {
+	return parseFloat(str) || 0;
+};
+
+exports.parseInt = function(str) {
+	return parseInt(str,10) || 0;
+};
+
+exports.stringifyNumber = function(num) {
+	return num + "";
+};
+
+exports.makeCompareFunction = function(type,options) {
+	options = options || {};
+	var gt = options.invert ? -1 : +1,
+		lt = options.invert ? +1 : -1,
+		compare = function(a,b) {
+			if(a > b) {
+				return gt ;
+			} else if(a < b) {
+				return lt;
+			} else {
+				return 0;
+			}
+		},
+		types = {
+			"number": function(a,b) {
+				return compare($tw.utils.parseNumber(a),$tw.utils.parseNumber(b));
+			},
+			"integer": function(a,b) {
+				return compare($tw.utils.parseInt(a),$tw.utils.parseInt(b));
+			},
+			"string": function(a,b) {
+				return compare("" + a,"" +b);
+			},
+			"date": function(a,b) {
+				var dateA = $tw.utils.parseDate(a),
+					dateB = $tw.utils.parseDate(b);
+				if(!isFinite(dateA)) {
+					dateA = new Date(0);
+				}
+				if(!isFinite(dateB)) {
+					dateB = new Date(0);
+				}
+				return compare(dateA,dateB);
+			},
+			"version": function(a,b) {
+				return $tw.utils.compareVersions(a,b);
+			}
+		};
+	return (types[type] || types[options.defaultType] || types.number);
 };
 
 })();
