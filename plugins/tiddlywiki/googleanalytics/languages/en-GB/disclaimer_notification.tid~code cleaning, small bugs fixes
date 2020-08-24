@@ -1,3 +1,0 @@
-title: $:/plugins/tiddlywiki/googleanalytics/disclaimer_notification
-
-This wiki uses Google analytics tracker (that means also //cookies//) via a [[plugin|$:/plugins/tiddlywiki/googleanalytics]] to get informations about your navigation. <$link to={{$:/plugins/tiddlywiki/googleanalytics/disclaimer_title!!text}} >read more</$link>.

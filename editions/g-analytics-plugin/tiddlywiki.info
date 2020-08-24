@@ -1,0 +1,16 @@
+{
+	"description": "minimal edition for Google Analytics plugin testing",
+	"plugins": [
+		"tiddlywiki/tiddlyweb",
+		"tiddlywiki/filesystem",
+		"tiddlywiki/consent-banner",
+		"tiddlywiki/googleanalytics"
+	],
+	"themes": [
+		"tiddlywiki/vanilla"
+	],
+	"build": {
+		"index": [
+			"--rendertiddler","$:/core/save/all","index.html","text/plain"]
+	}
+}
