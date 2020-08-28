@@ -1,3 +1,8 @@
 title: HelloThere
 
-The "G-Analytics" edition of TiddlyWiki is a minimal version of TiddlyWiki for testing purposes.
+This is a demo of TiddlyWiki5 incorporating a plugin for tracking visitors when wiki is published on the web. So you may know where they are from, which browser they use, how long they stay on your page (...), and if option is check which tiddlers are most viewed.
+
+The plugin uses the Google Analytics capabilities which means that:
+
+* You will ''need a Google Analytics account'' to use it,
+* You should ''be careful about your visitor's privacy'' and therefore install [[consent-banner plugin]] alongside this one.
